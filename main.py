@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
 from antlr4 import *
 from morseLexer import morseLexer
@@ -6,6 +8,14 @@ from morseParser import morseParser
 from morseListener import morseListener
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class MorseRequest(BaseModel):
     text: str
@@ -64,6 +74,8 @@ class TextTomorseListener(morseListener):
         }
         for child in ctx.getChildren():
             self.result.append(mapping.get(child.getText(), ""))
+
+
 
 @app.post("/morse_to_text")
 async def morse_to_text(request: MorseRequest):
